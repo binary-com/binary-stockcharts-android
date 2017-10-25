@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Binary Stockcharts Android</string>
+    <string name="title_activity_binary_line_chart">BinaryLineChart</string>
+</resources>
