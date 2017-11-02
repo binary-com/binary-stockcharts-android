@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.binary.binarystockchartsandroid.BinaryCandleStickChartActivity;
 import com.binary.binarystockchartsandroid.BinaryLineChartActivity;
 import com.binary.binarystockchartsandroid.R;
 
@@ -29,7 +30,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         ArrayList<ContentItem> objects = new ArrayList<ContentItem>();
 
-        objects.add(new ContentItem("Line Chart", "A simple demonstration of the linechart."));
+        objects.add(new ContentItem("Line Chart", "A simple demonstration of the lineChart."));
+        objects.add(new ContentItem("CandleStick Chart", "A simple demonstration of the candleStickChart."));
 
         MyAdapter adapter = new MyAdapter(this, objects);
 
@@ -47,6 +49,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         switch (pos) {
             case 0:
                 i = new Intent(this, BinaryLineChartActivity.class);
+                startActivity(i);
+                break;
+            case 1:
+                i = new Intent(this, BinaryCandleStickChartActivity.class);
                 startActivity(i);
                 break;
 

@@ -9,5 +9,10 @@
     <color name="colorCrossHair">#820303</color>
     <color name="colorLineChartValue">#000000</color>
     <color name="colorLineChartFill">#33b5e5</color>
+    <color name="colorCandleShadow">#000000</color>
+    <color name="colorCandleDecreasing">#d11415</color>
+    <color name="colorCandleIncreasing">#2b920f</color>
+    <color name="colorCandleNatural">#0d7291</color>
+
 </resources>
 

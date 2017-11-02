@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.data.TickEntry;
 import com.binary.binarystockchart.formatter.DateTimeAxisValueFormatter;
+import com.binary.binarystockchart.utils.ColorUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.HighlightArea;
@@ -19,7 +20,6 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class BinaryLineChart extends LineChart {
     private LimitLine startSpotLine;
     private LimitLine entrySpotLine;
     private LimitLine exitSpotLine;
-    private List<LimitLine> barriersLine = new ArrayList<>();
+    private List<LimitLine> barrierLines = new ArrayList<>();
     private HighlightArea purchaseHighlightArea;
 
     public BinaryLineChart(Context context) {
@@ -54,7 +54,7 @@ public class BinaryLineChart extends LineChart {
     @Override
     public void init() {
         super.init();
-        this.setDescription("");
+        this.getDescription().setEnabled(false);
         this.getLegend().setEnabled(false);
         configYAxis();
         configXAxis();
@@ -69,7 +69,7 @@ public class BinaryLineChart extends LineChart {
     private void configXAxis() {
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setValueFormatter(new DateTimeAxisValueFormatter(this));
+        xAxis.setValueFormatter(new DateTimeAxisValueFormatter(this.epochReference));
         xAxis.setLabelCount(5);
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
@@ -83,7 +83,7 @@ public class BinaryLineChart extends LineChart {
     public void addTick(TickEntry tick) {
         LineData data = this.getData();
 
-        if( data == null) {
+        if (data == null) {
             data = new LineData();
             this.setData(data);
             this.invalidate();
@@ -91,7 +91,7 @@ public class BinaryLineChart extends LineChart {
 
         ILineDataSet set = data.getDataSetByIndex(0);
 
-        if(set == null) {
+        if (set == null) {
             set = createSet();
             data.addDataSet(set);
             this.epochReference = tick.getEpoch();
@@ -138,11 +138,11 @@ public class BinaryLineChart extends LineChart {
     public void addHighlightArea(TickEntry tick, int areaColor) {
         float endPoint = tick.getEpoch() - this.epochReference;
 
-        if(this.exitSpotLine != null) {
+        if (this.exitSpotLine != null) {
             endPoint = exitSpotLine.getLimit();
         }
 
-        if(this.purchaseHighlightArea != null) {
+        if (this.purchaseHighlightArea != null) {
             this.getXAxis().removeHighlightArea(this.purchaseHighlightArea);
         }
         this.purchaseHighlightArea = new HighlightArea(this.entrySpotLine.getLimit(), endPoint);
@@ -156,8 +156,8 @@ public class BinaryLineChart extends LineChart {
         barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
         barrierLine.enableDashedLine(30f, 10f, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            barrierLine.setLineColor(getContext().getColor(R.color.colorBarrierLine));
-            barrierLine.setTextColor(getContext().getColor(R.color.colorBarrierText));
+            barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
+            barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
         } else {
             barrierLine.setLineColor(getResources().getColor(R.color.colorBarrierLine));
             barrierLine.setTextColor(getResources().getColor(R.color.colorBarrierText));
@@ -171,7 +171,7 @@ public class BinaryLineChart extends LineChart {
     }
 
     private void removeAllBarrierLines() {
-        for (LimitLine limitLine : this.barriersLine) {
+        for (LimitLine limitLine : this.barrierLines) {
             this.getAxisLeft().removeLimitLine(limitLine);
         }
     }
@@ -183,13 +183,10 @@ public class BinaryLineChart extends LineChart {
         this.plotLine = new LimitLine(value, value.toString());
         this.plotLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
         this.plotLine.enableDashedLine(30f, 10f, 0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            this.plotLine.setLineColor(getContext().getColor(R.color.colorPlotLine));
-            this.plotLine.setTextColor(getContext().getColor(R.color.colorPlotText));
-        } else {
-            this.plotLine.setLineColor(getResources().getColor(R.color.colorPlotLine));
-            this.plotLine.setTextColor(getResources().getColor(R.color.colorPlotText));
-        }
+
+        this.plotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorPlotLine));
+        this.plotLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorPlotText));
+
         this.plotLine.setTextColor(Color.rgb(46, 136, 54));
         this.getAxisLeft().addLimitLine(plotLine);
     }
@@ -197,21 +194,14 @@ public class BinaryLineChart extends LineChart {
     private ILineDataSet createSet() {
         LineDataSet set = new LineDataSet(null, null);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            set.setColor(getContext().getColor(R.color.colorLineChart));
-            set.setCircleColor(getContext().getColor(R.color.colorLineChartCircle));
-            set.setCircleColorHole(getContext().getColor(R.color.colorLineChartCircle));
-            set.setHighLightColor(getContext().getColor(R.color.colorCrossHair));
-            set.setValueTextColor(getContext().getColor(R.color.colorLineChartValue));
-            set.setFillColor(getContext().getColor(R.color.colorLineChartFill));
-        } else {
-            set.setColor(getResources().getColor(R.color.colorLineChart));
-            set.setCircleColor(getResources().getColor(R.color.colorLineChartCircle));
-            set.setCircleColorHole(getResources().getColor(R.color.colorLineChartCircle));
-            set.setHighLightColor(getResources().getColor(R.color.colorCrossHair));
-            set.setValueTextColor(getResources().getColor(R.color.colorLineChartValue));
-            set.setFillColor(getResources().getColor(R.color.colorLineChartFill));
-        }
+
+        set.setColor(ColorUtils.getColor(getContext(), R.color.colorLineChart));
+        set.setCircleColor(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
+        set.setCircleColorHole(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
+        set.setHighLightColor(ColorUtils.getColor(getContext(), R.color.colorCrossHair));
+        set.setValueTextColor(ColorUtils.getColor(getContext(), R.color.colorLineChartValue));
+        set.setFillColor(ColorUtils.getColor(getContext(), R.color.colorLineChartFill));
+
         set.setLineWidth(2f);
         set.setCircleRadius(4f);
         set.setHighlightEnabled(true);

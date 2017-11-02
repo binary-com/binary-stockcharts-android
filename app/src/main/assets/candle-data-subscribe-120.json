@@ -1,0 +1,114 @@
+{
+  "candles": [
+    {
+      "close": "321.4971",
+      "epoch": 1509520756,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.4541",
+      "epoch": 1509520758,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.5317",
+      "epoch": 1509520760,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.4924",
+      "epoch": 1509520762,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.5195",
+      "epoch": 1509520764,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.5024",
+      "epoch": 1509520766,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.5224",
+      "epoch": 1509520768,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.4810",
+      "epoch": 1509520770,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.4370",
+      "epoch": 1509520772,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    },
+    {
+      "close": "321.3802",
+      "epoch": 1509520774,
+      "granularity": 120,
+      "high": "321.7498",
+      "id": "9f1f440d-55b1-e1b2-4f7b-cfbf29fbab0f",
+      "low": "321.3325",
+      "open": "321.7498",
+      "open_time": 1509520680,
+      "symbol": "R_50"
+    }
+  ]
+}
