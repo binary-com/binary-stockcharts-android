@@ -14,12 +14,12 @@ import java.util.TimeZone;
  * Created by morteza on 10/10/2017.
  */
 
-public class DateTimeAxisValueFormatter <T> implements IAxisValueFormatter {
+public class DateTimeAxisFormatter<T> implements IAxisValueFormatter {
     private SimpleDateFormat dateFormat;
     private Date date;
     private T chart;
 
-    public DateTimeAxisValueFormatter(T chart, String format ) {
+    public DateTimeAxisFormatter(T chart, String format ) {
         super();
         this.chart = chart;
         this.dateFormat = new SimpleDateFormat(format);
@@ -27,7 +27,7 @@ public class DateTimeAxisValueFormatter <T> implements IAxisValueFormatter {
         this.date = new Date();
     }
 
-    public DateTimeAxisValueFormatter(T chart) {
+    public DateTimeAxisFormatter(T chart) {
         this(chart, "hh:mm:ss");
     }
 

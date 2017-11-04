@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.data.TickEntry;
-import com.binary.binarystockchart.formatter.DateTimeAxisValueFormatter;
+import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
 import com.binary.binarystockchart.utils.ColorUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -69,7 +69,7 @@ public class BinaryLineChart extends LineChart {
     private void configXAxis() {
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setValueFormatter(new DateTimeAxisValueFormatter(this.epochReference));
+        xAxis.setValueFormatter(new DateTimeAxisFormatter(this.epochReference));
         xAxis.setLabelCount(5);
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
@@ -112,14 +112,14 @@ public class BinaryLineChart extends LineChart {
 
     public void addEntrySpot(TickEntry tick) {
         this.entrySpotLine = new LimitLine(tick.getEpoch() - this.epochReference);
-        this.entrySpotLine.setLineColor(Color.GREEN);
+        this.entrySpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
         this.entrySpotLine.setLineWidth(2f);
         this.getXAxis().addLimitLine(this.entrySpotLine);
     }
 
     public void addStartSpot(TickEntry tick) {
         this.startSpotLine = new LimitLine(tick.getEpoch() - this.epochReference);
-        this.startSpotLine.setLineColor(Color.GRAY);
+        this.startSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorStartSpotLine));
         this.startSpotLine.setLineWidth(2f);
         this.getXAxis().removeAllLimitLines();
         this.getXAxis().removeHighlightArea(purchaseHighlightArea);
@@ -131,7 +131,7 @@ public class BinaryLineChart extends LineChart {
     public void addExitSpot(TickEntry tick) {
         this.exitSpotLine = new LimitLine(tick.getEpoch() - this.epochReference);
         this.exitSpotLine.setLineWidth(2f);
-        this.exitSpotLine.setLineColor(Color.RED);
+        this.exitSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorExitSpotLit));
         this.getXAxis().addLimitLine(this.exitSpotLine);
     }
 

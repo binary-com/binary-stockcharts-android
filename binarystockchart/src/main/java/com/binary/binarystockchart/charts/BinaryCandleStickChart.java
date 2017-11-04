@@ -3,12 +3,12 @@ package com.binary.binarystockchart.charts;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.AttributeSet;
 
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
-import com.binary.binarystockchart.formatter.DateTimeAxisValueFormatter;
+import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
+import com.binary.binarystockchart.formatter.DecimalPointAxisFormatter;
 import com.binary.binarystockchart.utils.ColorUtils;
 import com.github.mikephil.charting.charts.CandleStickChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -126,12 +126,37 @@ public class BinaryCandleStickChart extends CandleStickChart {
     public void addStartSpot(BinaryCandleEntry entry) {
         this.startSpotLine = new LimitLine(
                 entry.getCandleEntry(this.epochReference, this.granularity).getX());
+
+        this.startSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorStartSpotLine));
+        this.startSpotLine.setLineWidth(2f);
+        this.getXAxis().removeAllLimitLines();
+        this.entrySpotLine = null;
+        this.exitSpotLine = null;
+        this.getXAxis().addLimitLine(this.startSpotLine);
+    }
+
+    public void addEntrySpot(BinaryCandleEntry entry) {
+        this.entrySpotLine = new LimitLine(
+                entry.getCandleEntry(this.epochReference, this.granularity).getX()
+        );
+        this.entrySpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
+        this.exitSpotLine.setLineWidth(2f);
+        this.getXAxis().addLimitLine(this.entrySpotLine);
+    }
+
+    public void addExitSpot(BinaryCandleEntry entry) {
+        this.exitSpotLine = new LimitLine(
+                entry.getCandleEntry(this.epochReference, this.granularity).getX()
+        );
+        this.exitSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
+        this.exitSpotLine.setLineWidth(2f);
+        this.getXAxis().addLimitLine(this.exitSpotLine);
     }
 
     private void configXAxis() {
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setValueFormatter(new DateTimeAxisValueFormatter(this, "hh:mm"));
+        xAxis.setValueFormatter(new DateTimeAxisFormatter(this, "hh:mm"));
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setDrawGridLines(false);
@@ -143,6 +168,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
 
         yAxis = this.getAxisLeft();
         yAxis.setDrawGridLines(false);
+        yAxis.setValueFormatter(new DecimalPointAxisFormatter(4));
     }
 
     private ICandleDataSet createSet() {
