@@ -167,7 +167,12 @@ public class BinaryLineChart extends LineChart {
     }
 
     public void addBarrierLine(final Float barrierValue) {
-        this.addBarrierLine(barrierValue, String.format("Barrier(%s)", barrierValue.toString()));
+        this.addBarrierLine(barrierValue,
+                String.format(
+                        getContext().getString(R.string.barrier),
+                        barrierValue.toString()
+                )
+        );
     }
 
     private void removeAllBarrierLines() {

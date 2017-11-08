@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 
 import com.binary.binarystockchart.R;
+import com.binary.binarystockchart.components.CandleMarkerView;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
 import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
 import com.binary.binarystockchart.formatter.DecimalPointAxisFormatter;
@@ -29,6 +30,7 @@ import java.util.List;
 public class BinaryCandleStickChart extends CandleStickChart {
     private Long epochReference = 0L;
     private Integer granularity = 60;
+    private Integer decimalPlaces = 2;
     private Boolean plotLineEnabled = true;
 
     private LimitLine plotLine;
@@ -54,6 +56,9 @@ public class BinaryCandleStickChart extends CandleStickChart {
         super.init();
         this.getDescription().setEnabled(false);
         this.getLegend().setEnabled(false);
+        CandleMarkerView mv = new CandleMarkerView(this.getContext(), R.layout.candle_mark_view);
+        mv.setChartView(this);
+        this.setMarker(mv);
         configXAxis();
         configYAxis();
     }
@@ -221,5 +226,13 @@ public class BinaryCandleStickChart extends CandleStickChart {
 
     public void setGranularity(Integer granularity) {
         this.granularity = granularity;
+    }
+
+    public Integer getDecimalPlaces() {
+        return decimalPlaces;
+    }
+
+    public void setDecimalPlaces(Integer decimalPlaces) {
+        this.decimalPlaces = decimalPlaces;
     }
 }

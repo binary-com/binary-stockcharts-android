@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">BinaryStockChart</string>
+    <string name="candle_marker_view_date_format">EEE, d MMM yyyy HH:mm</string>
+    <string name="barrier">Barrier(%1$s)</string>
+    <string name="candle_marker_view_text"><![CDATA[
+        <div>%1$s</div>
+        <div><b>High:</b> %2$s</div>
+        <div><b>Open:</b> %3$s</div>
+        <div><b>Low:</b> %4$s</div>
+        <div><b>Close:</b> %5$s</div>
+        ]]>
+    </string>
 </resources>

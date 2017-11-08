@@ -16,5 +16,7 @@
     <color name="colorCandleDecreasing">#d11415</color>
     <color name="colorCandleIncreasing">#2b920f</color>
     <color name="colorCandleNatural">#0d7291</color>
+    <color name="colorCandleMarkerStroke">#90c42323</color>
+    <color name="colorCandleMarkerSolid">#99F7F7F7</color>
 
 </resources>
