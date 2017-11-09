@@ -45,9 +45,25 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
+                    int i = 0;
                     for (BinaryCandleEntry entry : createMockData("candle-data-subscribe-120.json")) {
 
                         chart.addEntry(entry);
+                        i++;
+
+                        if (i == 2) {
+                            chart.addBarrierLine(entry.getClose());
+                        } else if (i == 5) {
+                            chart.removeAllBarriers();
+                            chart.addBarrierLine(
+                                    entry.getClose(),
+                                    String.format("Low Barrier(%s)", entry.getClose().toString())
+                            );
+                            chart.addBarrierLine(
+                                    entry.getClose() + 0.500f,
+                                    String.format("High Barrier(%s)", String.valueOf(entry.getClose() + 0.500F))
+                            );
+                        }
 
                         try{
                             thread.sleep(1000);
@@ -55,6 +71,9 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
                             ex.printStackTrace();
                         }
                     }
+                    chart.getAxisLeft().removeAllLimitLines();
+                    chart.invalidate();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

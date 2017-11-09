@@ -3,6 +3,7 @@ package com.binary.binarystockchart.charts;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.AttributeSet;
 
 import com.binary.binarystockchart.R;
@@ -127,6 +128,38 @@ public class BinaryCandleStickChart extends CandleStickChart {
 //        this.setVisibleXRangeMaximum(5f);
         this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
     }
+    public void addBarrierLine(final Float barrierValue, final String label) {
+        LimitLine barrierLine = new LimitLine(barrierValue, label);
+        barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        barrierLine.enableDashedLine(30f, 10f, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
+            barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
+        } else {
+            barrierLine.setLineColor(getResources().getColor(R.color.colorBarrierLine));
+            barrierLine.setTextColor(getResources().getColor(R.color.colorBarrierText));
+        }
+
+        this.barrierLines.add(barrierLine);
+        this.getAxisLeft().addLimitLine(barrierLine);
+        this.invalidate();
+    }
+
+    public void addBarrierLine(final Float barrierValue) {
+        this.addBarrierLine(barrierValue,
+                String.format(
+                        getContext().getString(R.string.barrier),
+                        barrierValue.toString()
+                )
+        );
+    }
+
+    public void removeAllBarriers() {
+        for (LimitLine limitLine : this.barrierLines) {
+            this.getAxisLeft().removeLimitLine(limitLine);
+        }
+        this.invalidate();
+    }
 
     public void addStartSpot(BinaryCandleEntry entry) {
         this.startSpotLine = new LimitLine(
@@ -138,6 +171,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
         this.entrySpotLine = null;
         this.exitSpotLine = null;
         this.getXAxis().addLimitLine(this.startSpotLine);
+        this.invalidate();
     }
 
     public void addEntrySpot(BinaryCandleEntry entry) {
@@ -147,6 +181,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
         this.entrySpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
         this.exitSpotLine.setLineWidth(2f);
         this.getXAxis().addLimitLine(this.entrySpotLine);
+        this.invalidate();
     }
 
     public void addExitSpot(BinaryCandleEntry entry) {
@@ -156,6 +191,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
         this.exitSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
         this.exitSpotLine.setLineWidth(2f);
         this.getXAxis().addLimitLine(this.exitSpotLine);
+        this.invalidate();
     }
 
     private void configXAxis() {
@@ -210,6 +246,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
 
         this.plotLine.setTextColor(Color.rgb(46, 136, 54));
         this.getAxisLeft().addLimitLine(plotLine);
+        this.invalidate();
     }
 
     public Long getEpochReference() {

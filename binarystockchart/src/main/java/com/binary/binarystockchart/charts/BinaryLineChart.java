@@ -115,6 +115,7 @@ public class BinaryLineChart extends LineChart {
         this.entrySpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
         this.entrySpotLine.setLineWidth(2f);
         this.getXAxis().addLimitLine(this.entrySpotLine);
+        this.invalidate();
     }
 
     public void addStartSpot(TickEntry tick) {
@@ -126,6 +127,7 @@ public class BinaryLineChart extends LineChart {
         this.entrySpotLine = null;
         this.exitSpotLine = null;
         this.getXAxis().addLimitLine(this.startSpotLine);
+        this.invalidate();
     }
 
     public void addExitSpot(TickEntry tick) {
@@ -133,6 +135,7 @@ public class BinaryLineChart extends LineChart {
         this.exitSpotLine.setLineWidth(2f);
         this.exitSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorExitSpotLit));
         this.getXAxis().addLimitLine(this.exitSpotLine);
+        this.invalidate();
     }
 
     public void addHighlightArea(TickEntry tick, int areaColor) {
@@ -148,6 +151,7 @@ public class BinaryLineChart extends LineChart {
         this.purchaseHighlightArea = new HighlightArea(this.entrySpotLine.getLimit(), endPoint);
         this.purchaseHighlightArea.setAreaColor(areaColor);
         this.getXAxis().addHighlightArea(this.purchaseHighlightArea);
+        this.invalidate();
 
     }
 
@@ -163,7 +167,9 @@ public class BinaryLineChart extends LineChart {
             barrierLine.setTextColor(getResources().getColor(R.color.colorBarrierText));
         }
 
+        this.barrierLines.add(barrierLine);
         this.getAxisLeft().addLimitLine(barrierLine);
+        this.invalidate();
     }
 
     public void addBarrierLine(final Float barrierValue) {
@@ -179,6 +185,7 @@ public class BinaryLineChart extends LineChart {
         for (LimitLine limitLine : this.barrierLines) {
             this.getAxisLeft().removeLimitLine(limitLine);
         }
+        this.invalidate();
     }
 
     private void updatePlotLine(Float value) {
@@ -194,6 +201,7 @@ public class BinaryLineChart extends LineChart {
 
         this.plotLine.setTextColor(Color.rgb(46, 136, 54));
         this.getAxisLeft().addLimitLine(plotLine);
+        this.invalidate();
     }
 
     private ILineDataSet createSet() {
