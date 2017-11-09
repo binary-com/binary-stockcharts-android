@@ -29,6 +29,7 @@ dependencies {
     })
 //    compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.github.binary-com:MPAndroidChart:master-SNAPSHOT'
+    compile 'com.google.guava:guava:23.3-android'
     testCompile 'junit:junit:4.12'
 }
 

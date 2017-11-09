@@ -128,6 +128,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
 //        this.setVisibleXRangeMaximum(5f);
         this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
     }
+
     public void addBarrierLine(final Float barrierValue, final String label) {
         LimitLine barrierLine = new LimitLine(barrierValue, label);
         barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);

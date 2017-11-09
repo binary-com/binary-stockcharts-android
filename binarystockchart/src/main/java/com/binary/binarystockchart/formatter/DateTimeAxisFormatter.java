@@ -19,7 +19,7 @@ public class DateTimeAxisFormatter<T> implements IAxisValueFormatter {
     private Date date;
     private T chart;
 
-    public DateTimeAxisFormatter(T chart, String format ) {
+    public DateTimeAxisFormatter(T chart, String format) {
         super();
         this.chart = chart;
         this.dateFormat = new SimpleDateFormat(format);
@@ -37,7 +37,7 @@ public class DateTimeAxisFormatter<T> implements IAxisValueFormatter {
         Integer granularity = 1;
 
         // FIXME Refactor the code to support all type of future charts e.g <T extends DataProvider>
-        if ( chart instanceof BinaryLineChart) {
+        if (chart instanceof BinaryLineChart) {
             epochReference = ((BinaryLineChart) chart).getEpochReference();
         } else if (chart instanceof BinaryCandleStickChart) {
             epochReference = ((BinaryCandleStickChart) chart).getEpochReference();

@@ -35,7 +35,7 @@ public class CandleMarkerView extends MarkerView {
      */
     public CandleMarkerView(Context context, int layoutResource) {
         super(context, layoutResource);
-        this.tvContent = (TextView) findViewById(R.id.tvContent);
+        this.tvContent = findViewById(R.id.tvContent);
     }
 
     @Override

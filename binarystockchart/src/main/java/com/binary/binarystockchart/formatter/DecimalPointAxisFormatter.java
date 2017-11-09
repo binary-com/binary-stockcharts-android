@@ -14,9 +14,10 @@ public class DecimalPointAxisFormatter implements IAxisValueFormatter {
     public DecimalPointAxisFormatter(Integer decimalPlaces) {
         this.decimalPlaces = decimalPlaces;
     }
+
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
-        String format = "%."+this.decimalPlaces +"f";
+        String format = "%." + this.decimalPlaces + "f";
         return String.format(format, value);
     }
 }

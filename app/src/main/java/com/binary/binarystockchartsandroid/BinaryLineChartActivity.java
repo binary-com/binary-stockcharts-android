@@ -3,28 +3,25 @@ package com.binary.binarystockchartsandroid;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.renderscript.Float2;
 
 import com.binary.binarystockchart.charts.BinaryLineChart;
 import com.binary.binarystockchart.data.TickEntry;
-import com.binary.binarystockchartsandroid.R;
 
 public class BinaryLineChartActivity extends Activity {
 
     private BinaryLineChart chart;
-    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_binary_line_chart);
 
-        this.chart = (BinaryLineChart) findViewById(R.id.binaryLineChart);
+        this.chart = findViewById(R.id.binaryLineChart);
 
-        thread = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i < prices.length; i++) {
+                for (int i = 0; i < prices.length; i++) {
 
                     addTick(i);
 
@@ -54,8 +51,8 @@ public class BinaryLineChartActivity extends Activity {
                         ), i % 2 == 0 ? Color.GREEN : Color.RED);
                     }
 
-                    try{
-                        thread.sleep(1000);
+                    try {
+                        Thread.sleep(1000);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }

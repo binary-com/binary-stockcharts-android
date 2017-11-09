@@ -20,8 +20,10 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -108,6 +110,44 @@ public class BinaryLineChart extends LineChart {
         this.setVisibleXRangeMinimum(5f);
         this.setVisibleXRangeMaximum(15f);
         this.moveViewToX(tick.getEpoch() - this.epochReference);
+    }
+
+    public void addTicks(List<TickEntry> ticks) {
+
+        if (ticks.size() == 0) {
+            return;
+        }
+
+        LineData data = this.getData();
+
+        if (data == null) {
+            data = new LineData();
+            this.setData(data);
+            this.invalidate();
+        }
+
+        ILineDataSet set = data.getDataSetByIndex(0);
+
+        if (set == null) {
+            set = createSet();
+            data.addDataSet(set);
+            this.epochReference = ticks.get(0).getEpoch();
+        }
+
+        for (TickEntry tick : ticks) {
+            data.addEntry(new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()), 0);
+        }
+
+        data.notifyDataChanged();
+
+        if (this.plotLineEnabled) {
+            this.updatePlotLine(Iterables.getLast(ticks).getQuote());
+        }
+
+        this.notifyDataSetChanged();
+        this.setVisibleXRangeMinimum(5f);
+        this.setVisibleXRangeMaximum(15f);
+        this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
     }
 
     public void addEntrySpot(TickEntry tick) {
