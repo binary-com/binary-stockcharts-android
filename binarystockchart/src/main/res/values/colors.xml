@@ -18,5 +18,7 @@
     <color name="colorCandleNatural">#0d7291</color>
     <color name="colorCandleMarkerStroke">#90c42323</color>
     <color name="colorCandleMarkerSolid">#99F7F7F7</color>
+    <color name="colorHighlightAreaWin">#552b920f</color>
+    <color name="colorHighlightAreaLose">#55d11415</color>
 
 </resources>

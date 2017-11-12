@@ -7,6 +7,16 @@ import android.os.Bundle;
 import com.binary.binarystockchart.charts.BinaryLineChart;
 import com.binary.binarystockchart.data.TickEntry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import utils.AssetManager;
+
 public class BinaryLineChartActivity extends Activity {
 
     private BinaryLineChart chart;
@@ -21,34 +31,28 @@ public class BinaryLineChartActivity extends Activity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < prices.length; i++) {
+                chart.addTicks(getTickHistory());
+                List<TickEntry> tickStream = getStreamTicks();
+                for (int i = 0; i < tickStream.size(); i++) {
 
-                    addTick(i);
+                    chart.addTick(tickStream.get(i));
 
                     // Add Start spot
-                    if (i == 10) {
-                        chart.addStartSpot(new TickEntry(
-                                Long.valueOf(times[i]) - 1,
-                                Float.valueOf(prices[i])
-                        ));
+                    if (i == 3) {
+                        chart.addStartSpot(tickStream.get(i - 1 ));
 
-                        chart.addEntrySpot(new TickEntry(
-                                Long.valueOf(times[i]),
-                                Float.valueOf(prices[i])
-                        ));
-                        chart.addBarrierLine(Float.valueOf(prices[i]));
-                    } else if (i == 15) {
-                        chart.addExitSpot(new TickEntry(
-                                Long.valueOf(times[i]),
-                                Float.valueOf(prices[i])
-                        ));
+                        chart.addEntrySpot(tickStream.get(i));
+                        chart.addBarrierLine(tickStream.get(i).getQuote());
+                    } else if (i == 8) {
+                        chart.addExitSpot(tickStream.get(i));
+                        chart.removeAllBarrierLines();
                     }
 
-                    if (i >= 10 && i <= 15) {
-                        chart.addHighlightArea(new TickEntry(
-                                Long.valueOf(times[i]),
-                                Float.valueOf(prices[i])
-                        ), i % 2 == 0 ? Color.GREEN : Color.RED);
+                    if (i >= 3 && i <= 8) {
+                        chart.addHighlightArea(
+                                tickStream.get(i),
+                                i % 2 == 0 ? Color.GREEN : Color.RED
+                        );
                     }
 
                     try {
@@ -66,6 +70,63 @@ public class BinaryLineChartActivity extends Activity {
     public void addTick(int i) {
         TickEntry tick = new TickEntry(Long.valueOf(times[i]), Float.valueOf(prices[i]));
         this.chart.addTick(tick);
+    }
+
+    private List<TickEntry> getMockData(String fileName) throws IOException {
+
+        boolean isStream = fileName.contains("subscribe");
+        List<TickEntry> result = new ArrayList<>();
+
+        String jsonData = AssetManager.readFromAssets(this, fileName);
+
+        try {
+            if (!isStream) {
+                JSONObject history = new JSONObject(jsonData);
+                JSONArray times = history.getJSONArray("times");
+                JSONArray prices = history.getJSONArray("prices");
+
+                for (int i = 0; i > times.length(); i++) {
+                    TickEntry tick = new TickEntry(
+                            Long.valueOf(times.getString(i)),
+                            Float.valueOf(prices.getString(i))
+                    );
+                    result.add(tick);
+                }
+            } else {
+                JSONArray ticks = new JSONArray(jsonData);
+
+                for(int i = 0; i < ticks.length(); i++) {
+                    JSONObject item = ticks.getJSONObject(i);
+                    TickEntry tick = new TickEntry(
+                            Long.valueOf(item.getString("epoch")),
+                            Float.valueOf(item.getString("quote"))
+                    );
+                    result.add(tick);
+                }
+            }
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+        return result;
+    }
+
+    private List<TickEntry> getTickHistory() {
+        try {
+            return this.getMockData("line-data.json");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<TickEntry> getStreamTicks() {
+        try {
+            return this.getMockData("line-data-subscribe.json");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     String[] prices = new String[]{

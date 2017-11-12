@@ -1,12 +1,16 @@
 package com.binary.binarystockchartsandroid;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 
 import com.binary.binarystockchart.charts.BinaryCandleStickChart;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
+import com.binary.binarystockchart.utils.ChartUtils;
+import com.binary.binarystockchart.utils.ColorUtils;
+import com.google.common.collect.Iterables;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +40,11 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
         this.chart.setGranularity(120);
 
         try {
-            this.chart.addEntries(createMockData());
+            List<BinaryCandleEntry> entries = createMockData();
+            this.chart.addEntries(entries);
+            BinaryCandleEntry entrySpot = Iterables.get(entries, entries.size() - 2);
+            this.chart.addStartSpot(entrySpot.getEpoch() - 10);
+            this.chart.addEntrySpot(entrySpot);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,6 +57,11 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
                     for (BinaryCandleEntry entry : createMockData("candle-data-subscribe-120.json")) {
 
                         chart.addEntry(entry);
+                        chart.addHighlightArea(
+                                entry,
+                                i % 2 == 0 ?
+                                        ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaWin)
+                                        : ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaLose));
                         i++;
 
                         if (i == 2) {

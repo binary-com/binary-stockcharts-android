@@ -221,7 +221,7 @@ public class BinaryLineChart extends LineChart {
         );
     }
 
-    private void removeAllBarrierLines() {
+    public void removeAllBarrierLines() {
         for (LimitLine limitLine : this.barrierLines) {
             this.getAxisLeft().removeLimitLine(limitLine);
         }

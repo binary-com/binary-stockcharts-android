@@ -2,6 +2,7 @@ package com.binary.binarystockchart.data;
 
 import android.graphics.drawable.Drawable;
 
+import com.binary.binarystockchart.utils.ChartUtils;
 import com.github.mikephil.charting.data.CandleEntry;
 
 /**
@@ -24,7 +25,8 @@ public class BinaryCandleEntry {
     }
 
     public CandleEntry getCandleEntry(Long epochReference, Integer granularity) {
-        return new CandleEntry((this.epoch - epochReference) / granularity,
+        return new CandleEntry(
+                ChartUtils.convertEpochToChartX(this.epoch, epochReference, granularity),
                 this.high, this.low, this.open, this.close);
     }
 

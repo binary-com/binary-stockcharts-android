@@ -11,8 +11,10 @@ import com.binary.binarystockchart.components.CandleMarkerView;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
 import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
 import com.binary.binarystockchart.formatter.DecimalPointAxisFormatter;
+import com.binary.binarystockchart.utils.ChartUtils;
 import com.binary.binarystockchart.utils.ColorUtils;
 import com.github.mikephil.charting.charts.CandleStickChart;
+import com.github.mikephil.charting.components.HighlightArea;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -39,6 +41,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
     private LimitLine entrySpotLine;
     private LimitLine exitSpotLine;
     private List<LimitLine> barrierLines = new ArrayList<>();
+    private HighlightArea purchaseHighlightArea;
 
     public BinaryCandleStickChart(Context context) {
         super(context);
@@ -97,8 +100,6 @@ public class BinaryCandleStickChart extends CandleStickChart {
         }
 
         this.notifyDataSetChanged();
-        this.setVisibleXRangeMinimum(3f);
-//        this.setVisibleXRangeMaximum(5f);
         this.moveViewToX(entry.getEpoch() - this.epochReference);
     }
 
@@ -124,8 +125,6 @@ public class BinaryCandleStickChart extends CandleStickChart {
         }
 
         this.notifyDataSetChanged();
-        this.setVisibleXRangeMinimum(3f);
-//        this.setVisibleXRangeMaximum(5f);
         this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
     }
 
@@ -162,9 +161,9 @@ public class BinaryCandleStickChart extends CandleStickChart {
         this.invalidate();
     }
 
-    public void addStartSpot(BinaryCandleEntry entry) {
+    public void addStartSpot(Long epoch) {
         this.startSpotLine = new LimitLine(
-                entry.getCandleEntry(this.epochReference, this.granularity).getX());
+                ChartUtils.convertEpochToChartX(epoch, this.epochReference, this.granularity));
 
         this.startSpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorStartSpotLine));
         this.startSpotLine.setLineWidth(2f);
@@ -180,7 +179,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
                 entry.getCandleEntry(this.epochReference, this.granularity).getX()
         );
         this.entrySpotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorEntrySpotLit));
-        this.exitSpotLine.setLineWidth(2f);
+        this.entrySpotLine.setLineWidth(2f);
         this.getXAxis().addLimitLine(this.entrySpotLine);
         this.invalidate();
     }
@@ -195,6 +194,26 @@ public class BinaryCandleStickChart extends CandleStickChart {
         this.invalidate();
     }
 
+    public void addHighlightArea(BinaryCandleEntry entry, int areaColor) {
+        if (this.entrySpotLine == null) {
+            return;
+        }
+
+        Float endPoint = entry.getCandleEntry(this.epochReference, this.granularity).getX();
+
+        if (this.exitSpotLine != null) {
+            endPoint = this.exitSpotLine.getLimit();
+        }
+
+        if (this.purchaseHighlightArea != null) {
+            this.getXAxis().removeHighlightArea(this.purchaseHighlightArea);
+        }
+
+        this.purchaseHighlightArea = new HighlightArea(this.entrySpotLine.getLimit(), endPoint);
+        this.purchaseHighlightArea.setAreaColor(areaColor);
+        this.getXAxis().addHighlightArea(this.purchaseHighlightArea);
+    }
+
     private void configXAxis() {
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -202,6 +221,8 @@ public class BinaryCandleStickChart extends CandleStickChart {
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setDrawGridLines(false);
+        this.setVisibleXRangeMinimum(3f);
+        this.setVisibleXRangeMaximum(10f);
     }
 
     private void configYAxis() {
