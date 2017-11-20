@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.components.CandleMarkerView;
@@ -22,6 +23,8 @@ import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,7 @@ import java.util.List;
  * Created by morteza on 10/25/2017.
  */
 
-public class BinaryCandleStickChart extends CandleStickChart {
+public class BinaryCandleStickChart extends CandleStickChart implements OnChartGestureListener {
     private Long epochReference = 0L;
     private Integer granularity = 60;
     private Integer decimalPlaces = 2;
@@ -42,6 +45,7 @@ public class BinaryCandleStickChart extends CandleStickChart {
     private LimitLine exitSpotLine;
     private List<LimitLine> barrierLines = new ArrayList<>();
     private HighlightArea purchaseHighlightArea;
+    private Boolean autoScrollingEnabled = true;
 
     public BinaryCandleStickChart(Context context) {
         super(context);
@@ -63,10 +67,10 @@ public class BinaryCandleStickChart extends CandleStickChart {
         CandleMarkerView mv = new CandleMarkerView(this.getContext(), R.layout.candle_mark_view);
         mv.setChartView(this);
         this.setMarker(mv);
+        this.setOnChartGestureListener(this);
         configXAxis();
         configYAxis();
     }
-
 
     public void addEntry(BinaryCandleEntry entry) {
         CandleData data = this.getData();
@@ -100,7 +104,13 @@ public class BinaryCandleStickChart extends CandleStickChart {
         }
 
         this.notifyDataSetChanged();
-        this.moveViewToX(entry.getEpoch() - this.epochReference);
+
+        this.setVisibleXRangeMinimum(1f);
+        this.setVisibleXRangeMaximum(5f);
+
+        if(this.autoScrollingEnabled) {
+            this.moveViewToX(entry.getEpoch() - this.epochReference);
+        }
     }
 
     public void addEntries(List<BinaryCandleEntry> entries) {
@@ -125,7 +135,13 @@ public class BinaryCandleStickChart extends CandleStickChart {
         }
 
         this.notifyDataSetChanged();
-        this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
+
+        this.setVisibleXRangeMinimum(1f);
+        this.setVisibleXRangeMaximum(5f);
+
+        if(this.autoScrollingEnabled) {
+            this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
+        }
     }
 
     public void addBarrierLine(final Float barrierValue, final String label) {
@@ -221,8 +237,6 @@ public class BinaryCandleStickChart extends CandleStickChart {
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setDrawGridLines(false);
-        this.setVisibleXRangeMinimum(3f);
-        this.setVisibleXRangeMaximum(10f);
     }
 
     private void configYAxis() {
@@ -293,5 +307,50 @@ public class BinaryCandleStickChart extends CandleStickChart {
 
     public void setDecimalPlaces(Integer decimalPlaces) {
         this.decimalPlaces = decimalPlaces;
+    }
+
+    @Override
+    public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+    }
+
+    @Override
+    public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        float result = Math.abs(Math.round(this.getHighestVisibleX()) - this.getXAxis().getAxisMaximum());
+        if( result < 1 && result >= 0) {
+            this.autoScrollingEnabled = true;
+        } else {
+            this.autoScrollingEnabled = false;
+        }
+    }
+
+    @Override
+    public void onChartLongPressed(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartDoubleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartSingleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+    }
+
+    @Override
+    public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+    }
+
+    @Override
+    public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
     }
 }

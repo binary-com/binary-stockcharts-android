@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.binary.binarystockchart.charts.BinaryLineChart;
 import com.binary.binarystockchart.data.TickEntry;
+import com.binary.binarystockchart.utils.ColorUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,32 +29,40 @@ public class BinaryLineChartActivity extends Activity {
 
         this.chart = findViewById(R.id.binaryLineChart);
 
+        chart.addTicks(getTickHistory());
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                chart.addTicks(getTickHistory());
-                List<TickEntry> tickStream = getStreamTicks();
-                for (int i = 0; i < tickStream.size(); i++) {
+                final List<TickEntry> tickStream = getStreamTicks();
+                for (final TickEntry tick : tickStream) {
 
-                    chart.addTick(tickStream.get(i));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            chart.addTick(tick);
 
-                    // Add Start spot
-                    if (i == 3) {
-                        chart.addStartSpot(tickStream.get(i - 1 ));
+                            // Add Start spot
+                            if (tickStream.indexOf(tick) == 3) {
+                                chart.addStartSpot(tickStream.get(2));
 
-                        chart.addEntrySpot(tickStream.get(i));
-                        chart.addBarrierLine(tickStream.get(i).getQuote());
-                    } else if (i == 8) {
-                        chart.addExitSpot(tickStream.get(i));
-                        chart.removeAllBarrierLines();
-                    }
+                                chart.addEntrySpot(tick);
+                                chart.addBarrierLine(tick.getQuote());
+                            } else if (tickStream.indexOf(tick) == 8) {
+                                chart.addExitSpot(tick);
+                                chart.removeAllBarrierLines();
+                            }
 
-                    if (i >= 3 && i <= 8) {
-                        chart.addHighlightArea(
-                                tickStream.get(i),
-                                i % 2 == 0 ? Color.GREEN : Color.RED
-                        );
-                    }
+                            if (tickStream.indexOf(tick) >= 3 && tickStream.indexOf(tick) <= 8) {
+                                chart.addHighlightArea(
+                                        tick,
+                                        tickStream.indexOf(tick) % 2 == 0 ?
+                                                ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaWin) :
+                                                ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaLose)
+                                );
+                            }
+                        }
+                    });
 
                     try {
                         Thread.sleep(1000);
@@ -65,11 +74,6 @@ public class BinaryLineChartActivity extends Activity {
         });
 
         thread.start();
-    }
-
-    public void addTick(int i) {
-        TickEntry tick = new TickEntry(Long.valueOf(times[i]), Float.valueOf(prices[i]));
-        this.chart.addTick(tick);
     }
 
     private List<TickEntry> getMockData(String fileName) throws IOException {
@@ -85,7 +89,7 @@ public class BinaryLineChartActivity extends Activity {
                 JSONArray times = history.getJSONArray("times");
                 JSONArray prices = history.getJSONArray("prices");
 
-                for (int i = 0; i > times.length(); i++) {
+                for (int i = 0; i < times.length(); i++) {
                     TickEntry tick = new TickEntry(
                             Long.valueOf(times.getString(i)),
                             Float.valueOf(prices.getString(i))

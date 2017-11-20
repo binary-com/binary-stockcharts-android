@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.data.TickEntry;
@@ -20,7 +22,10 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Booleans;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,9 +35,10 @@ import java.util.List;
  * Created by morteza on 10/10/2017.
  */
 
-public class BinaryLineChart extends LineChart {
+public class BinaryLineChart extends LineChart implements OnChartGestureListener {
 
     private Boolean plotLineEnabled = true;
+    private Boolean autoScrollingEnabled = true;
     private Long epochReference = 0L;
     private LimitLine plotLine;
     private LimitLine startSpotLine;
@@ -58,6 +64,7 @@ public class BinaryLineChart extends LineChart {
         super.init();
         this.getDescription().setEnabled(false);
         this.getLegend().setEnabled(false);
+        this.setOnChartGestureListener(this);
         configYAxis();
         configXAxis();
     }
@@ -107,9 +114,13 @@ public class BinaryLineChart extends LineChart {
         }
 
         this.notifyDataSetChanged();
+
         this.setVisibleXRangeMinimum(5f);
         this.setVisibleXRangeMaximum(15f);
-        this.moveViewToX(tick.getEpoch() - this.epochReference);
+
+        if(this.autoScrollingEnabled) {
+            this.moveViewToX(tick.getEpoch() - this.epochReference);
+        }
     }
 
     public void addTicks(List<TickEntry> ticks) {
@@ -145,9 +156,13 @@ public class BinaryLineChart extends LineChart {
         }
 
         this.notifyDataSetChanged();
+
         this.setVisibleXRangeMinimum(5f);
         this.setVisibleXRangeMaximum(15f);
-        this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
+
+        if (this.autoScrollingEnabled) {
+            this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
+        }
     }
 
     public void addEntrySpot(TickEntry tick) {
@@ -284,6 +299,51 @@ public class BinaryLineChart extends LineChart {
 
     public void setPlotLineEnabled(Boolean plotLineEnabled) {
         this.plotLineEnabled = plotLineEnabled;
+    }
+
+    @Override
+    public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+    }
+
+    @Override
+    public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        float result = Math.abs(Math.round(this.getHighestVisibleX()) - this.getXAxis().getAxisMaximum());
+        if( result < 1 && result >= 0) {
+            this.autoScrollingEnabled = true;
+        } else {
+            this.autoScrollingEnabled = false;
+        }
+    }
+
+    @Override
+    public void onChartLongPressed(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartDoubleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartSingleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+    }
+
+    @Override
+    public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+    }
+
+    @Override
+    public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
     }
 }
 
