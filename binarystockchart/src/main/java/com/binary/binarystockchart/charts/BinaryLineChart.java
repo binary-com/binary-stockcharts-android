@@ -3,6 +3,8 @@ package com.binary.binarystockchart.charts;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,10 +27,8 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.google.common.collect.Iterables;
-import com.google.common.primitives.Booleans;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,6 +39,7 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
 
     private Boolean plotLineEnabled = true;
     private Boolean autoScrollingEnabled = true;
+    private Boolean drawCircle = false;
     private Long epochReference = 0L;
     private LimitLine plotLine;
     private LimitLine startSpotLine;
@@ -65,6 +66,7 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
         this.getDescription().setEnabled(false);
         this.getLegend().setEnabled(false);
         this.setOnChartGestureListener(this);
+//        this.setViewPortOffsets(120, 0, 0, 0);
         configYAxis();
         configXAxis();
     }
@@ -109,16 +111,15 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
         data.addEntry(new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()), 0);
         data.notifyDataChanged();
 
+        this.setXAxisMax(tick.getEpoch() - this.epochReference);
+
         if (this.plotLineEnabled) {
             this.updatePlotLine(tick.getQuote());
         }
 
         this.notifyDataSetChanged();
 
-        this.setVisibleXRangeMinimum(5f);
-        this.setVisibleXRangeMaximum(15f);
-
-        if(this.autoScrollingEnabled) {
+        if (this.autoScrollingEnabled) {
             this.moveViewToX(tick.getEpoch() - this.epochReference);
         }
     }
@@ -155,14 +156,20 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
             this.updatePlotLine(Iterables.getLast(ticks).getQuote());
         }
 
-        this.notifyDataSetChanged();
+        TickEntry lastTick = ticks.get(ticks.size() - 1);
+        this.setXAxisMax(lastTick.getEpoch() - this.epochReference * 1f);
 
-        this.setVisibleXRangeMinimum(5f);
-        this.setVisibleXRangeMaximum(15f);
+        this.zoom(20, 1, 0, 0);
+
+        this.notifyDataSetChanged();
 
         if (this.autoScrollingEnabled) {
             this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
         }
+    }
+
+    private void setXAxisMax(float x) {
+        mXAxis.setAxisMaximum(x + this.getVisibleXRange() / 3);
     }
 
     public void addEntrySpot(TickEntry tick) {
@@ -212,15 +219,15 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
 
     public void addBarrierLine(final Float barrierValue, final String label) {
         LimitLine barrierLine = new LimitLine(barrierValue, label);
-        barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         barrierLine.enableDashedLine(30f, 10f, 0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
-            barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
-        } else {
-            barrierLine.setLineColor(getResources().getColor(R.color.colorBarrierLine));
-            barrierLine.setTextColor(getResources().getColor(R.color.colorBarrierText));
-        }
+        barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
+        barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
+
+        barrierLine.setLabelBackground(LimitLine.LimitLineLabelBackground.RECTANGLE);
+        barrierLine.setLabelBackgroundStyle(Paint.Style.STROKE);
+        barrierLine.setLabelBackgroundColor(ColorUtils.getColor(getContext(),
+                R.color.colorBarrierBg));
 
         this.barrierLines.add(barrierLine);
         this.getAxisLeft().addLimitLine(barrierLine);
@@ -228,12 +235,7 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
     }
 
     public void addBarrierLine(final Float barrierValue) {
-        this.addBarrierLine(barrierValue,
-                String.format(
-                        getContext().getString(R.string.barrier),
-                        barrierValue.toString()
-                )
-        );
+        this.addBarrierLine(barrierValue, barrierValue.toString());
     }
 
     public void removeAllBarrierLines() {
@@ -248,13 +250,15 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
             this.getAxisLeft().removeLimitLine(plotLine);
         }
         this.plotLine = new LimitLine(value, value.toString());
-        this.plotLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
-        this.plotLine.enableDashedLine(30f, 10f, 0);
+        this.plotLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
 
         this.plotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorPlotLine));
         this.plotLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorPlotText));
 
-        this.plotLine.setTextColor(Color.rgb(46, 136, 54));
+        this.plotLine.setLabelBackground(LimitLine.LimitLineLabelBackground.POLYGON);
+        this.plotLine.setLabelBackgroundColor(ColorUtils.getColor(getContext(),
+                R.color.colorPlotBg));
+
         this.getAxisLeft().addLimitLine(plotLine);
         this.invalidate();
     }
@@ -270,11 +274,22 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
         set.setValueTextColor(ColorUtils.getColor(getContext(), R.color.colorLineChartValue));
         set.setFillColor(ColorUtils.getColor(getContext(), R.color.colorLineChartFill));
 
+        set.setDrawCircles(this.drawCircle);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // fill drawable only supported on api level 18 and above
+            Drawable drawable = getResources().getDrawable(R.drawable.fade_blue);
+            set.setFillDrawable(drawable);
+        } else {
+            set.setFillColor(Color.BLACK);
+        }
+
         set.setLineWidth(2f);
         set.setCircleRadius(4f);
         set.setHighlightEnabled(true);
         set.setValueTextSize(8f);
         set.setDrawValues(false);
+        set.setDrawFilled(true);
 
         return set;
     }
@@ -301,6 +316,22 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
         this.plotLineEnabled = plotLineEnabled;
     }
 
+    public Boolean getDrawCircle() {
+        return drawCircle;
+    }
+
+    public void setDrawCircle(Boolean drawCircle) {
+        this.drawCircle = drawCircle;
+
+        List<ILineDataSet> sets = this.getData().getDataSets();
+
+        for (ILineDataSet iSet : sets) {
+            LineDataSet set = (LineDataSet) iSet;
+            set.setDrawCircles(this.drawCircle);
+        }
+        this.invalidate();
+    }
+
     @Override
     public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
 
@@ -309,7 +340,7 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
     @Override
     public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
         float result = Math.abs(Math.round(this.getHighestVisibleX()) - this.getXAxis().getAxisMaximum());
-        if( result < 1 && result >= 0) {
+        if (result < 1 && result >= 0) {
             this.autoScrollingEnabled = true;
         } else {
             this.autoScrollingEnabled = false;
@@ -338,7 +369,9 @@ public class BinaryLineChart extends LineChart implements OnChartGestureListener
 
     @Override
     public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-
+        if ( this.autoScrollingEnabled) {
+            this.moveViewToX(this.getHighestVisibleX());
+        }
     }
 
     @Override

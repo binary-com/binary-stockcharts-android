@@ -1,14 +1,10 @@
 package com.binary.binarystockchartsandroid;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 
 import com.binary.binarystockchart.charts.BinaryCandleStickChart;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
-import com.binary.binarystockchart.utils.ChartUtils;
 import com.binary.binarystockchart.utils.ColorUtils;
 import com.google.common.collect.Iterables;
 
@@ -70,14 +66,8 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
                                     chart.addBarrierLine(entry.getClose());
                                 } else if (streams.indexOf(entry) == 5) {
                                     chart.removeAllBarriers();
-                                    chart.addBarrierLine(
-                                            entry.getClose(),
-                                            String.format("Low Barrier(%s)", entry.getClose().toString())
-                                    );
-                                    chart.addBarrierLine(
-                                            entry.getClose() + 0.500f,
-                                            String.format("High Barrier(%s)", String.valueOf(entry.getClose() + 0.500F))
-                                    );
+                                    chart.addBarrierLine(entry.getClose());
+                                    chart.addBarrierLine(entry.getClose() + 0.500f);
                                 }
                             }
                         });

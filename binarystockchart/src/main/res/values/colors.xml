@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPlotLine">#FF4081</color>
-    <color name="colorPlotText">#2e8836</color>
+    <color name="colorPlotLine">#2a3052</color>
+    <color name="colorPlotText">#fcfcfc</color>
+    <color name="colorPlotBg">#2a3052</color>
     <color name="colorStartSpotLine">#8e8e8e</color>
     <color name="colorEntrySpotLit">#40ad27</color>
     <color name="colorExitSpotLit">#c42323</color>
-    <color name="colorBarrierLine">#3F51B5</color>
-    <color name="colorBarrierText">#3F51B5</color>
+    <color name="colorBarrierLine">#f44336</color>
+    <color name="colorBarrierText">#f44336</color>
+    <color name="colorBarrierBg">#f44336</color>
     <color name="colorLineChart">#7cb5ec</color>
     <color name="colorLineChartCircle">#303F9F</color>
     <color name="colorCrossHair">#820303</color>

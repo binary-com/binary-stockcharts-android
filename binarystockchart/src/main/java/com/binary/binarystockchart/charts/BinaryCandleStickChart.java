@@ -99,6 +99,8 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
         data.addEntry(entry.getCandleEntry(this.epochReference, this.granularity), 0);
         data.notifyDataChanged();
 
+        mXAxis.setAxisMaximum(entry.getCandleEntry(this.epochReference, this.granularity).getX() + 2);
+
         if (this.plotLineEnabled) {
             this.updatePlotLine(entry.getClose());
         }
@@ -146,15 +148,15 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
 
     public void addBarrierLine(final Float barrierValue, final String label) {
         LimitLine barrierLine = new LimitLine(barrierValue, label);
-        barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        barrierLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         barrierLine.enableDashedLine(30f, 10f, 0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
-            barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
-        } else {
-            barrierLine.setLineColor(getResources().getColor(R.color.colorBarrierLine));
-            barrierLine.setTextColor(getResources().getColor(R.color.colorBarrierText));
-        }
+        barrierLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorBarrierLine));
+        barrierLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorBarrierText));
+
+        barrierLine.setLabelBackground(LimitLine.LimitLineLabelBackground.RECTANGLE);
+        barrierLine.setLabelBackgroundStyle(Paint.Style.STROKE);
+        barrierLine.setLabelBackgroundColor(ColorUtils.getColor(getContext(),
+                R.color.colorBarrierBg));
 
         this.barrierLines.add(barrierLine);
         this.getAxisLeft().addLimitLine(barrierLine);
@@ -162,12 +164,7 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
     }
 
     public void addBarrierLine(final Float barrierValue) {
-        this.addBarrierLine(barrierValue,
-                String.format(
-                        getContext().getString(R.string.barrier),
-                        barrierValue.toString()
-                )
-        );
+        this.addBarrierLine(barrierValue, barrierValue.toString());
     }
 
     public void removeAllBarriers() {
@@ -274,13 +271,16 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
             this.getAxisLeft().removeLimitLine(plotLine);
         }
         this.plotLine = new LimitLine(value, value.toString());
-        this.plotLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        this.plotLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         this.plotLine.enableDashedLine(30f, 10f, 0);
 
         this.plotLine.setLineColor(ColorUtils.getColor(getContext(), R.color.colorPlotLine));
         this.plotLine.setTextColor(ColorUtils.getColor(getContext(), R.color.colorPlotText));
 
-        this.plotLine.setTextColor(Color.rgb(46, 136, 54));
+        this.plotLine.setLabelBackground(LimitLine.LimitLineLabelBackground.POLYGON);
+        this.plotLine.setLabelBackgroundColor(ColorUtils.getColor(getContext(),
+                R.color.colorPlotBg));
+
         this.getAxisLeft().addLimitLine(plotLine);
         this.invalidate();
     }

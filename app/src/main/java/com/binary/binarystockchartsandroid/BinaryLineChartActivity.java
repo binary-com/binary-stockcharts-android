@@ -1,7 +1,6 @@
 package com.binary.binarystockchartsandroid;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import com.binary.binarystockchart.charts.BinaryLineChart;
@@ -47,7 +46,7 @@ public class BinaryLineChartActivity extends Activity {
                                 chart.addStartSpot(tickStream.get(2));
 
                                 chart.addEntrySpot(tick);
-                                chart.addBarrierLine(tick.getQuote());
+                                chart.addBarrierLine(tick.getQuote()+0.2f);
                             } else if (tickStream.indexOf(tick) == 8) {
                                 chart.addExitSpot(tick);
                                 chart.removeAllBarrierLines();

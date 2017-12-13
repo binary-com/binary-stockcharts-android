@@ -29,7 +29,7 @@ public class RealTimeBinaryLineChartActivity extends AppCompatActivity {
         this.chart = (BinaryLineChart) findViewById(R.id.binaryRealTimeLineChart);
         this.chart.setAutoScaleMinMaxEnabled(true);
 
-        this.api = ApiWrapper.build("10");
+        this.api = ApiWrapper.build("10", "en", "wss://frontend.binaryws.com/websockets/v3");
 
         TickHistoryRequest tickHistory = new TickHistoryRequest("R_50", "latest");
         tickHistory.setSubscribe(1);
