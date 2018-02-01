@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.binary.binarystockchartsandroid.BinaryLineChartActivity">
+    tools:context="com.binary.binarystockchartsandroid.LineCombineChartActivity">
 
-    <com.binary.binarystockchart.charts.BinaryLineChartOld
-        android:id="@+id/binaryRealTimeLineChart"
+    <com.binary.binarystockchart.charts.BinaryLineChart
+        android:id="@+id/binaryRealTimeCombineLineChart"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -23,4 +23,5 @@
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintTop_toTopOf="parent"/>
+
 </android.support.constraint.ConstraintLayout>

@@ -1,9 +1,7 @@
 package com.binary.binarystockchart.charts;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -12,9 +10,10 @@ import com.binary.binarystockchart.components.CandleMarkerView;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
 import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
 import com.binary.binarystockchart.formatter.DecimalPointAxisFormatter;
+import com.binary.binarystockchart.interfaces.indecators.IIndicator;
 import com.binary.binarystockchart.utils.ChartUtils;
 import com.binary.binarystockchart.utils.ColorUtils;
-import com.github.mikephil.charting.charts.CandleStickChart;
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.HighlightArea;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
@@ -22,9 +21,11 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
+import com.github.mikephil.charting.renderer.CombinedChartRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  * Created by morteza on 10/25/2017.
  */
 
-public class BinaryCandleStickChart extends CandleStickChart implements OnChartGestureListener {
+public class BinaryCandleStickChart extends CombinedChart implements OnChartGestureListener {
     private Long epochReference = 0L;
     private Integer granularity = 60;
     private Integer decimalPlaces = 2;
@@ -46,6 +47,7 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
     private List<LimitLine> barrierLines = new ArrayList<>();
     private HighlightArea purchaseHighlightArea;
     private Boolean autoScrollingEnabled = true;
+    private List<IIndicator> indicators = new ArrayList<>();
 
     public BinaryCandleStickChart(Context context) {
         super(context);
@@ -70,36 +72,82 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
         this.setOnChartGestureListener(this);
         configXAxis();
         configYAxis();
+
+        this.setDrawOrder(new DrawOrder[]{
+                DrawOrder.BAR, DrawOrder.BUBBLE, DrawOrder.CANDLE, DrawOrder.LINE, DrawOrder.SCATTER
+        });
+    }
+
+    private CombinedData generateCombinedData() {
+        CombinedData combinedData = this.getData();
+
+        if(combinedData == null) {
+            combinedData = new CombinedData();
+        }
+        return combinedData;
+    }
+
+    private CandleData generateCandleData() {
+        CombinedData combinedData = this.generateCombinedData();
+
+        CandleData candleData = combinedData.getCandleData();
+
+        if(candleData == null) {
+            candleData = new CandleData();
+            combinedData.setData(candleData);
+        }
+
+        ICandleDataSet candleDataSet = candleData.getDataSetByLabel(
+                BinaryLineChart.DataSetLabels.MAIN.toString(),
+                false
+        );
+
+        if(candleDataSet == null) {
+            candleDataSet = createSet();
+            candleData.addDataSet(candleDataSet);
+
+            this.setData(combinedData);
+        }
+
+        return candleData;
+    }
+
+    private void handlesIndicators() {
+        for(IIndicator indicator : this.indicators) {
+            if(indicator.getChartData() == null) {
+                indicator.setChartData(this.getCombinedData());
+                this.setData(this.getCombinedData());
+            }
+
+            indicator.notifyDataChanged();
+            ((CombinedChartRenderer) this.getRenderer()).createRenderers();
+        }
     }
 
     public void addEntry(BinaryCandleEntry entry) {
-        CandleData data = this.getData();
+        CandleData data = this.generateCandleData();
 
-        if (data == null) {
-            data = new CandleData();
-            this.setData(data);
-            this.invalidate();
-        }
-
-        ICandleDataSet set = data.getDataSetByIndex(0);
-
-        if (set == null) {
-            set = createSet();
-            data.addDataSet(set);
+        if (this.epochReference == 0L) {
             this.epochReference = entry.getEpoch();
         }
 
+        ICandleDataSet set = data.getDataSetByLabel(
+                BinaryLineChart.DataSetLabels.MAIN.toString(),
+                false);
         CandleEntry lastEntry = set.getEntryForIndex(set.getEntryCount() - 1);
 
         if (lastEntry.getX() == entry.getCandleEntry(this.epochReference, this.granularity).getX()) {
             set.removeLast();
-            data.notifyDataChanged();
-        }
+    }
 
-        data.addEntry(entry.getCandleEntry(this.epochReference, this.granularity), 0);
+        data.addEntry(entry.getCandleEntry(this.epochReference, this.granularity), "MAIN");
         data.notifyDataChanged();
 
-        mXAxis.setAxisMaximum(entry.getCandleEntry(this.epochReference, this.granularity).getX() + 2);
+        this.handlesIndicators();
+
+        this.getCombinedData().notifyDataChanged();
+
+        this.setXAxisMax(entry.getCandleEntry(this.epochReference, this.granularity).getX());
 
         if (this.plotLineEnabled) {
             this.updatePlotLine(entry.getClose());
@@ -107,28 +155,15 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
 
         this.notifyDataSetChanged();
 
-        this.setVisibleXRangeMinimum(1f);
-        this.setVisibleXRangeMaximum(5f);
-
         if(this.autoScrollingEnabled) {
             this.moveViewToX(entry.getEpoch() - this.epochReference);
         }
     }
 
     public void addEntries(List<BinaryCandleEntry> entries) {
-        CandleData data = this.getData();
+        CandleData data = generateCandleData();
 
-        if (data == null) {
-            data = new CandleData();
-            this.setData(data);
-            this.invalidate();
-        }
-
-        ICandleDataSet set = data.getDataSetByIndex(0);
-
-        if (set == null) {
-            set = createSet();
-            data.addDataSet(set);
+        if (this.epochReference == 0L) {
             this.epochReference = entries.get(0).getEpoch();
         }
 
@@ -136,10 +171,13 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
             data.addEntry(entry.getCandleEntry(this.epochReference, this.granularity), 0);
         }
 
-        this.notifyDataSetChanged();
+        this.handlesIndicators();
 
-        this.setVisibleXRangeMinimum(1f);
-        this.setVisibleXRangeMaximum(5f);
+        this.getCombinedData().notifyDataChanged();
+
+        this.zoom(2, 1, 0, 0);
+
+        this.notifyDataSetChanged();
 
         if(this.autoScrollingEnabled) {
             this.moveViewToX(entries.get(entries.size() - 1).getEpoch() - this.epochReference);
@@ -231,6 +269,7 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new DateTimeAxisFormatter(this, "hh:mm"));
+        xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setDrawGridLines(false);
@@ -245,8 +284,15 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
         yAxis.setValueFormatter(new DecimalPointAxisFormatter(4));
     }
 
+    private void setXAxisMax(float x) {
+        mXAxis.setAxisMaximum(x + this.getVisibleXRange() / 2);
+    }
+
     private ICandleDataSet createSet() {
-        CandleDataSet set = new CandleDataSet(null, null);
+        CandleDataSet set = new CandleDataSet(
+                null,
+                BinaryLineChart.DataSetLabels.MAIN.toString()
+        );
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setDrawValues(false);
 
@@ -309,6 +355,18 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
         this.decimalPlaces = decimalPlaces;
     }
 
+    public void addIndicator(IIndicator indicator) {
+        this.indicators.add(indicator);
+    }
+
+    public void removeIndicator(IIndicator indicator) {
+        this.indicators.remove(indicator);
+    }
+
+    public void removeIndicator(int index) {
+        this.indicators.remove(index);
+    }
+
     @Override
     public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
 
@@ -317,6 +375,7 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
     @Override
     public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
         float result = Math.abs(Math.round(this.getHighestVisibleX()) - this.getXAxis().getAxisMaximum());
+        this.setXAxisMax(this.getXAxis().getAxisMaximum());
         if( result < 1 && result >= 0) {
             this.autoScrollingEnabled = true;
         } else {
@@ -346,7 +405,9 @@ public class BinaryCandleStickChart extends CandleStickChart implements OnChartG
 
     @Override
     public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-
+        if ( this.autoScrollingEnabled) {
+            this.moveViewToX(this.getHighestVisibleX());
+        }
     }
 
     @Override

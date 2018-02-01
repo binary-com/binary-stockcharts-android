@@ -1,24 +1,25 @@
 package com.binary.binarystockchart.charts;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.binary.binarystockchart.R;
 import com.binary.binarystockchart.data.TickEntry;
 import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
-import com.binary.binarystockchart.interfaces.indecators.IIndicator;
 import com.binary.binarystockchart.utils.ColorUtils;
-import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.HighlightArea;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -31,55 +32,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by morteza on 12/18/2017.
+ * Created by morteza on 10/10/2017.
  */
 
-public class BinaryLineChart extends CombinedChart implements OnChartGestureListener {
+public class BinaryLineChartOld extends LineChart implements OnChartGestureListener {
 
     private Boolean plotLineEnabled = true;
     private Boolean autoScrollingEnabled = true;
     private Boolean drawCircle = false;
     private Long epochReference = 0L;
-    private Integer defaultXAxisZoom = 20;
-    private Integer defaultYAxixZoom = 1;
     private LimitLine plotLine;
     private LimitLine startSpotLine;
     private LimitLine entrySpotLine;
     private LimitLine exitSpotLine;
     private List<LimitLine> barrierLines = new ArrayList<>();
     private HighlightArea purchaseHighlightArea;
-    private ChartType mainChartType = ChartType.LINE;
-    private List<IIndicator> indicators = new ArrayList<>();
 
-    public BinaryLineChart(Context context) {
+    public BinaryLineChartOld(Context context) {
         super(context);
     }
 
-    public BinaryLineChart(Context context, AttributeSet attrs) {
+    public BinaryLineChartOld(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public BinaryLineChart(Context context, AttributeSet attrs, int defStyle) {
+    public BinaryLineChartOld(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-    }
-
-    public enum ChartType {
-        LINE, CANDLE
-    }
-
-    public enum DataSetLabels {
-        MAIN("MAIN");
-
-        private final String value;
-
-        DataSetLabels(String _value) {
-            value = _value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
     }
 
     @Override
@@ -88,96 +66,58 @@ public class BinaryLineChart extends CombinedChart implements OnChartGestureList
         this.getDescription().setEnabled(false);
         this.getLegend().setEnabled(false);
         this.setOnChartGestureListener(this);
+//        this.setViewPortOffsets(120, 0, 0, 0);
         configYAxis();
         configXAxis();
     }
 
-    private CombinedData generateCombinedData() {
-        CombinedData combinedData = this.getData();
 
-        if(combinedData == null) {
-            combinedData = new CombinedData();
-        }
-        return combinedData;
+    @Override
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
     }
 
-    private LineData generateLineData() {
-        CombinedData combinedData = this.generateCombinedData();
-
-        LineData lineData = combinedData.getLineData();
-
-        if(lineData == null) {
-            lineData = new LineData();
-            combinedData.setData(lineData);
-        }
-
-        ILineDataSet lineDataSet = lineData.getDataSetByLabel(
-                DataSetLabels.MAIN.toString(),
-                false
-        );
-
-        if(lineDataSet == null) {
-            lineDataSet = createSet();
-            lineData.addDataSet(lineDataSet);
-
-            this.setData(combinedData);
-        }
-
-        return lineData;
+    private void configXAxis() {
+        XAxis xAxis = this.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setValueFormatter(new DateTimeAxisFormatter(this.epochReference));
+        xAxis.setLabelCount(5);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
     }
 
-    private ILineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, DataSetLabels.MAIN.toString());
-
-        set.setColor(ColorUtils.getColor(getContext(), R.color.colorLineChart));
-        set.setCircleColor(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
-        set.setCircleColorHole(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
-        set.setHighLightColor(ColorUtils.getColor(getContext(), R.color.colorCrossHair));
-        set.setValueTextColor(ColorUtils.getColor(getContext(), R.color.colorLineChartValue));
-        set.setFillColor(ColorUtils.getColor(getContext(), R.color.colorLineChartFill));
-
-        set.setDrawCircles(this.drawCircle);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // fill drawable only supported on api level 18 and above
-            Drawable drawable = getResources().getDrawable(R.drawable.fade_blue);
-            set.setFillDrawable(drawable);
-        } else {
-            set.setFillColor(Color.BLACK);
-        }
-
-        set.setLineWidth(2f);
-        set.setCircleRadius(4f);
-        set.setHighlightEnabled(true);
-        set.setValueTextSize(8f);
-        set.setDrawValues(false);
-        set.setDrawFilled(true);
-
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        return set;
+    private void configYAxis() {
+        YAxis yAxis = this.getAxisRight();
+        yAxis.setEnabled(false);
     }
 
     public void addTick(TickEntry tick) {
+        LineData data = this.getData();
 
-        LineData lineData = generateLineData();
+        if (data == null) {
+            data = new LineData();
+            this.setData(data);
+            this.invalidate();
+        }
 
+        ILineDataSet set = data.getDataSetByIndex(0);
 
-        if(this.epochReference == 0L) {
+        if (set == null) {
+            set = createSet();
+            data.addDataSet(set);
             this.epochReference = tick.getEpoch();
         }
 
-        lineData.addEntry(
-                new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()),
-                0
-        );
+        data.addEntry(new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()), 0);
+        data.notifyDataChanged();
 
-        this.handlesIndicators();
-        this.getCombinedData().notifyDataChanged();
         this.setXAxisMax(tick.getEpoch() - this.epochReference);
 
         if (this.plotLineEnabled) {
             this.updatePlotLine(tick.getQuote());
         }
+
+        this.notifyDataSetChanged();
 
         if (this.autoScrollingEnabled) {
             this.moveViewToX(tick.getEpoch() - this.epochReference);
@@ -186,47 +126,50 @@ public class BinaryLineChart extends CombinedChart implements OnChartGestureList
 
     public void addTicks(List<TickEntry> ticks) {
 
-        LineData lineData = generateLineData();
+        if (ticks.size() == 0) {
+            return;
+        }
 
-        if (this.epochReference == 0L) {
+        LineData data = this.getData();
+
+        if (data == null) {
+            data = new LineData();
+            this.setData(data);
+            this.invalidate();
+        }
+
+        ILineDataSet set = data.getDataSetByIndex(0);
+
+        if (set == null) {
+            set = createSet();
+            data.addDataSet(set);
             this.epochReference = ticks.get(0).getEpoch();
         }
 
         for (TickEntry tick : ticks) {
-            lineData.addEntry(new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()),
-                    "MAIN");
+            data.addEntry(new Entry(tick.getEpoch() - this.epochReference, tick.getQuote()), 0);
         }
 
-        this.getCombinedData().notifyDataChanged();
+        data.notifyDataChanged();
 
-        this.handlesIndicators();
-        this.notifyDataSetChanged();
-
-
-        TickEntry lastTick = Iterables.getLast(ticks);
         if (this.plotLineEnabled) {
-            this.updatePlotLine(lastTick.getQuote());
+            this.updatePlotLine(Iterables.getLast(ticks).getQuote());
         }
 
-        this.setXAxisMax(lastTick.getEpoch() - this.epochReference);
+        TickEntry lastTick = ticks.get(ticks.size() - 1);
+        this.setXAxisMax(lastTick.getEpoch() - this.epochReference * 1f);
 
-        this.zoom(this.defaultXAxisZoom, defaultYAxixZoom, 0, 0);
+        this.zoom(20, 1, 0, 0);
+
+        this.notifyDataSetChanged();
 
         if (this.autoScrollingEnabled) {
             this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
         }
     }
 
-    private void handlesIndicators() {
-        LineData chartData = generateLineData();
-
-        for(IIndicator indicator : this.indicators) {
-            if(indicator.getChartData() == null) {
-                indicator.setChartData(this.getCombinedData());
-            }
-
-            indicator.notifyDataChanged();
-        }
+    private void setXAxisMax(float x) {
+        mXAxis.setAxisMaximum(x + this.getVisibleXRange() / 3);
     }
 
     public void addEntrySpot(TickEntry tick) {
@@ -320,23 +263,41 @@ public class BinaryLineChart extends CombinedChart implements OnChartGestureList
         this.invalidate();
     }
 
-    private void setXAxisMax(float x) {
-        mXAxis.setAxisMaximum(x + this.getVisibleXRange() / 3);
+    private ILineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+
+        set.setColor(ColorUtils.getColor(getContext(), R.color.colorLineChart));
+        set.setCircleColor(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
+        set.setCircleColorHole(ColorUtils.getColor(getContext(), R.color.colorLineChartCircle));
+        set.setHighLightColor(ColorUtils.getColor(getContext(), R.color.colorCrossHair));
+        set.setValueTextColor(ColorUtils.getColor(getContext(), R.color.colorLineChartValue));
+        set.setFillColor(ColorUtils.getColor(getContext(), R.color.colorLineChartFill));
+
+        set.setDrawCircles(this.drawCircle);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // fill drawable only supported on api level 18 and above
+            Drawable drawable = getResources().getDrawable(R.drawable.fade_blue);
+            set.setFillDrawable(drawable);
+        } else {
+            set.setFillColor(Color.BLACK);
+        }
+
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setHighlightEnabled(true);
+        set.setValueTextSize(8f);
+        set.setDrawValues(false);
+        set.setDrawFilled(true);
+
+        return set;
     }
 
-    private void configXAxis() {
-        XAxis xAxis = this.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setValueFormatter(new DateTimeAxisFormatter(this));
-        xAxis.setLabelCount(5);
-//        xAxis.setAxisMinimum(0f);
-        xAxis.setGranularity(1f);
-        xAxis.setGranularityEnabled(true);
-    }
-
-    private void configYAxis() {
-        YAxis yAxis = this.getAxisRight();
-        yAxis.setEnabled(false);
+    public void setDescription(String description) {
+        Description desc = new Description();
+        desc.setText(description);
+        setDescription(desc);
     }
 
     public Long getEpochReference() {
@@ -359,44 +320,16 @@ public class BinaryLineChart extends CombinedChart implements OnChartGestureList
         return drawCircle;
     }
 
-    public Integer getDefaultXAxisZoom() {
-        return defaultXAxisZoom;
-    }
-
-    public void setDefaultXAxisZoom(Integer defaultXAxisZoom) {
-        this.defaultXAxisZoom = defaultXAxisZoom;
-    }
-
-    public Integer getDefaultYAxixZoom() {
-        return defaultYAxixZoom;
-    }
-
-    public void setDefaultYAxixZoom(Integer defaultYAxixZoom) {
-        this.defaultYAxixZoom = defaultYAxixZoom;
-    }
-
     public void setDrawCircle(Boolean drawCircle) {
         this.drawCircle = drawCircle;
 
-        List<ILineDataSet> sets = this.generateLineData().getDataSets();
+        List<ILineDataSet> sets = this.getData().getDataSets();
 
         for (ILineDataSet iSet : sets) {
             LineDataSet set = (LineDataSet) iSet;
             set.setDrawCircles(this.drawCircle);
         }
         this.invalidate();
-    }
-
-    public void addIndicator(IIndicator indicator) {
-        this.indicators.add(indicator);
-    }
-
-    public void removeIndicator(IIndicator indicator) {
-        this.indicators.remove(indicator);
-    }
-
-    public void removeIndicator(int index) {
-        this.indicators.remove(index);
     }
 
     @Override
@@ -446,3 +379,4 @@ public class BinaryLineChart extends CombinedChart implements OnChartGestureList
 
     }
 }
+

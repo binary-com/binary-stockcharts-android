@@ -26,9 +26,11 @@ public class BinaryLineChartActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_binary_line_chart);
 
+//        setContentView(R.layout.activity_line_combine_chart);
         this.chart = findViewById(R.id.binaryLineChart);
+        this.chart.setAutoScaleMinMaxEnabled(true);
 
-        chart.addTicks(getTickHistory());
+        this.chart.addTicks(getTickHistory());
 
         Thread thread = new Thread(new Runnable() {
             @Override

@@ -3,6 +3,7 @@ package com.binary.binarystockchartsandroid;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.binary.binarystockchart.Indecators.SimpleMovingAverageIndicator;
 import com.binary.binarystockchart.charts.BinaryCandleStickChart;
 import com.binary.binarystockchart.data.BinaryCandleEntry;
 import com.binary.binarystockchart.utils.ColorUtils;
@@ -34,6 +35,10 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
         this.chart.setPinchZoom(false);
         this.chart.setAutoScaleMinMaxEnabled(true);
         this.chart.setGranularity(120);
+
+        SimpleMovingAverageIndicator sma = new SimpleMovingAverageIndicator("SMA");
+        sma.setPeriod(2);
+        this.chart.addIndicator(sma);
 
         try {
             List<BinaryCandleEntry> entries = createMockData();
