@@ -3,7 +3,6 @@ package com.binary.binarystockchart.formatter;
 
 import com.binary.binarystockchart.charts.BinaryCandleStickChart;
 import com.binary.binarystockchart.charts.BinaryLineChart;
-import com.binary.binarystockchart.charts.BinaryLineChartOld;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
@@ -38,9 +37,7 @@ public class DateTimeAxisFormatter<T> implements IAxisValueFormatter {
         Integer granularity = 1;
 
         // FIXME Refactor the code to support all type of future charts e.g <T extends DataProvider>
-        if (chart instanceof BinaryLineChartOld) {
-            epochReference = ((BinaryLineChartOld) chart).getEpochReference();
-        } else if(chart instanceof BinaryLineChart){
+        if(chart instanceof BinaryLineChart){
             epochReference = ((BinaryLineChart) chart).getEpochReference();
         } else if (chart instanceof BinaryCandleStickChart) {
             epochReference = ((BinaryCandleStickChart) chart).getEpochReference();

@@ -7,7 +7,7 @@ import com.binary.api.ApiWrapper;
 import com.binary.api.models.requests.TickHistoryRequest;
 import com.binary.api.models.responses.TickHistoryResponse;
 import com.binary.api.models.responses.TickResponse;
-import com.binary.binarystockchart.charts.BinaryLineChartOld;
+import com.binary.binarystockchart.charts.BinaryLineChart;
 import com.binary.binarystockchart.data.TickEntry;
 
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class RealTimeBinaryLineChartActivity extends AppCompatActivity {
 
-    BinaryLineChartOld chart;
+    BinaryLineChart chart;
     ApiWrapper api;
 
     @Override
@@ -26,7 +26,7 @@ public class RealTimeBinaryLineChartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_real_time_binary_line_chart);
 
-        this.chart = (BinaryLineChartOld) findViewById(R.id.binaryRealTimeLineChart);
+        this.chart = (BinaryLineChart) findViewById(R.id.binaryRealTimeLineChart);
         this.chart.setAutoScaleMinMaxEnabled(true);
 
         this.api = ApiWrapper.build("10", "en", "wss://frontend.binaryws.com/websockets/v3");
