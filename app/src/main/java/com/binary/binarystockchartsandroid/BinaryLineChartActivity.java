@@ -45,18 +45,18 @@ public class BinaryLineChartActivity extends Activity {
 
                             // Add Start spot
                             if (tickStream.indexOf(tick) == 3) {
-                                chart.addStartSpot(tickStream.get(2));
+                                chart.addStartSpot(tickStream.get(2).getEpoch());
 
-                                chart.addEntrySpot(tick);
+                                chart.addEntrySpot(tick.getEpoch());
                                 chart.addBarrierLine(tick.getQuote()+0.2f);
                             } else if (tickStream.indexOf(tick) == 8) {
-                                chart.addExitSpot(tick);
+                                chart.addExitSpot(tick.getEpoch());
                                 chart.removeAllBarrierLines();
                             }
 
                             if (tickStream.indexOf(tick) >= 3 && tickStream.indexOf(tick) <= 8) {
                                 chart.addHighlightArea(
-                                        tick,
+                                        tick.getEpoch(),
                                         tickStream.indexOf(tick) % 2 == 0 ?
                                                 ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaWin) :
                                                 ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaLose)

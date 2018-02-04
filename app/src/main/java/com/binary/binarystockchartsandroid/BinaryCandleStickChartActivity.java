@@ -45,7 +45,7 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
             this.chart.addEntries(entries);
             BinaryCandleEntry entrySpot = Iterables.get(entries, entries.size() - 2);
             this.chart.addStartSpot(entrySpot.getEpoch() - 10);
-            this.chart.addEntrySpot(entrySpot);
+            this.chart.addEntrySpot(entrySpot.getEpoch());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,7 +62,7 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
                             public void run() {
                                 chart.addEntry(entry);
                                 chart.addHighlightArea(
-                                        entry,
+                                        entry.getEpoch(),
                                         streams.indexOf(entry) % 2 == 0 ?
                                                 ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaWin)
                                                 : ColorUtils.getColor(chart.getContext(), R.color.colorHighlightAreaLose));
@@ -70,7 +70,7 @@ public class BinaryCandleStickChartActivity extends AppCompatActivity {
                                 if (streams.indexOf(entry) == 2) {
                                     chart.addBarrierLine(entry.getClose());
                                 } else if (streams.indexOf(entry) == 5) {
-                                    chart.removeAllBarriers();
+                                    chart.removeAllBarrierLines();
                                     chart.addBarrierLine(entry.getClose());
                                     chart.addBarrierLine(entry.getClose() + 0.500f);
                                 }
