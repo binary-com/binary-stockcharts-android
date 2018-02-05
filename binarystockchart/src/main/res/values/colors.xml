@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPlotLine">#2a3052</color>
+    <color name="colorPlotText">#fcfcfc</color>
+    <color name="colorPlotBg">#2a3052</color>
+    <color name="colorStartSpotLine">#8e8e8e</color>
+    <color name="colorEntrySpotLit">#40ad27</color>
+    <color name="colorExitSpotLit">#c42323</color>
+    <color name="colorBarrierLine">#f44336</color>
+    <color name="colorBarrierText">#f44336</color>
+    <color name="colorBarrierBg">#f44336</color>
+    <color name="colorLineChart">#7cb5ec</color>
+    <color name="colorLineChartCircle">#303F9F</color>
+    <color name="colorCrossHair">#820303</color>
+    <color name="colorLineChartValue">#000000</color>
+    <color name="colorLineChartFill">#33b5e5</color>
+    <color name="colorCandleShadow">#000000</color>
+    <color name="colorCandleDecreasing">#d11415</color>
+    <color name="colorCandleIncreasing">#2b920f</color>
+    <color name="colorCandleNatural">#0d7291</color>
+    <color name="colorCandleMarkerStroke">#90c42323</color>
+    <color name="colorCandleMarkerSolid">#99F7F7F7</color>
+    <color name="colorHighlightAreaWin">#552b920f</color>
+    <color name="colorHighlightAreaLose">#55d11415</color>
+    <color name="colorSMAStroke">#ff53b6ad</color>
+
+</resources>
