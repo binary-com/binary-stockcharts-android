@@ -30,7 +30,7 @@ public class BinaryLineChartActivity extends Activity {
         this.chart = findViewById(R.id.binaryLineChart);
         this.chart.setAutoScaleMinMaxEnabled(true);
 
-        this.chart.addTicks(getTickHistory());
+        this.chart.addEntries(getTickHistory());
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -41,7 +41,7 @@ public class BinaryLineChartActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            chart.addTick(tick);
+                            chart.addEntry(tick);
 
                             // Add Start spot
                             if (tickStream.indexOf(tick) == 3) {

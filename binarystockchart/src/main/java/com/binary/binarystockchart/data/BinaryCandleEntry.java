@@ -2,6 +2,7 @@ package com.binary.binarystockchart.data;
 
 import android.graphics.drawable.Drawable;
 
+import com.binary.binarystockchart.interfaces.data.IEntry;
 import com.binary.binarystockchart.utils.ChartUtils;
 import com.github.mikephil.charting.data.CandleEntry;
 
@@ -9,7 +10,7 @@ import com.github.mikephil.charting.data.CandleEntry;
  * Created by morteza on 10/25/2017.
  */
 
-public class BinaryCandleEntry {
+public class BinaryCandleEntry implements IEntry{
     private Long epoch;
     private Float high;
     private Float low;

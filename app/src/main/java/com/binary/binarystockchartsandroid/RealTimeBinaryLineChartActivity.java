@@ -40,12 +40,12 @@ public class RealTimeBinaryLineChartActivity extends AppCompatActivity {
                 .subscribe(
                         response -> {
                             if( response instanceof TickHistoryResponse) {
-                                this.chart.addTicks(
+                                this.chart.addEntries(
                                         this.convertHistoryResToTickList((TickHistoryResponse)response)
                                 );
                             } else if (response instanceof TickResponse) {
                                 TickResponse tick = (TickResponse) response;
-                                this.chart.addTick(new TickEntry(
+                                this.chart.addEntry(new TickEntry(
                                         Long.valueOf(tick.getTick().getEpoch()),
                                         Float.valueOf(tick.getTick().getQuote())
                                 ));

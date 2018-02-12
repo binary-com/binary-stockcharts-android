@@ -1,13 +1,16 @@
 package com.binary.binarystockchart.charts;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import com.binary.binarystockchart.R;
+import com.binary.binarystockchart.data.ChartTranslationData;
 import com.binary.binarystockchart.formatter.DateTimeAxisFormatter;
 import com.binary.binarystockchart.interfaces.charts.IBinaryChart;
+import com.binary.binarystockchart.interfaces.data.IEntry;
 import com.binary.binarystockchart.interfaces.indecators.IIndicator;
 import com.binary.binarystockchart.utils.ColorUtils;
 import com.github.mikephil.charting.charts.CombinedChart;
@@ -18,7 +21,6 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarLineScatterCandleBubbleData;
 import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineRadarDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
@@ -26,18 +28,20 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.subjects.PublishSubject;
+
 /**
  * Created by morteza on 2/2/2018.
  */
 
-public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData> extends CombinedChart implements IBinaryChart<T>, OnChartGestureListener {
+public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData, Y extends IEntry> extends CombinedChart implements IBinaryChart<T>, OnChartGestureListener {
 
     protected Boolean plotLineEnabled = true;
     protected Boolean autoScrollingEnabled = true;
     protected Boolean drawCircle = false;
     protected Long epochReference = 0L;
     protected Integer defaultXAxisZoom = 20;
-    protected Integer defaultYAxixZoom = 1;
+    protected Integer defaultYAxisZoom = 1;
     protected LimitLine plotLine;
     protected LimitLine startSpotLine;
     protected LimitLine entrySpotLine;
@@ -45,6 +49,7 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
     protected List<LimitLine> barrierLines = new ArrayList<>();
     protected HighlightArea purchaseHighlightArea;
     protected List<IIndicator> indicators = new ArrayList<>();
+    protected PublishSubject<ChartTranslationData> viewPortEmitter;
 
     public enum DataSetLabels {
         MAIN("MAIN");
@@ -72,8 +77,6 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
     public BaseBinaryChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-
-    protected abstract T generateMainData();
 
     @Override
     public void init() {
@@ -140,8 +143,6 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
         this.invalidate();
     }
 
-    protected abstract void setXAxisMax(float x);
-
     protected void configXAxis() {
         XAxis xAxis = this.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -185,12 +186,12 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
         this.defaultXAxisZoom = defaultXAxisZoom;
     }
 
-    public Integer getDefaultYAxixZoom() {
-        return defaultYAxixZoom;
+    public Integer getDefaultYAxisZoom() {
+        return defaultYAxisZoom;
     }
 
-    public void setDefaultYAxixZoom(Integer defaultYAxixZoom) {
-        this.defaultYAxixZoom = defaultYAxixZoom;
+    public void setDefaultYAxisZoom(Integer defaultYAxisZoom) {
+        this.defaultYAxisZoom = defaultYAxisZoom;
     }
 
     public void setDrawCircle(Boolean drawCircle) {
@@ -207,6 +208,7 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
 
     public void addIndicator(IIndicator indicator) {
         this.indicators.add(indicator);
+        this.handlesIndicators();
     }
 
     public void removeIndicator(IIndicator indicator) {
@@ -216,6 +218,29 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
     public void removeIndicator(int index) {
         this.indicators.remove(index);
     }
+
+    public PublishSubject<ChartTranslationData> getViewPortEmitter() {
+        return viewPortEmitter;
+    }
+
+    public void setViewPortEmitter(PublishSubject<ChartTranslationData> viewPortEmitter) {
+        this.viewPortEmitter = viewPortEmitter;
+
+        this.viewPortEmitter.subscribe( o -> {
+            if( this.hashCode() != o.getHash()) {
+                Matrix matrix = this.getViewPortHandler().getMatrixTouch();
+                matrix.setValues(o.getViewPortMatrixValues());
+                this.getViewPortHandler().refresh(matrix, this, true);
+            }
+        });
+    }
+
+    protected abstract void setXAxisMax(float x);
+    protected abstract T generateMainData();
+    protected abstract void handlesIndicators();
+    public abstract void addEntry(Y entry);
+    public abstract void addEntries(List<Y> entries);
+
 
     @Override
     public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
@@ -257,10 +282,27 @@ public abstract class BaseBinaryChart <T extends BarLineScatterCandleBubbleData>
         if ( this.autoScrollingEnabled) {
             this.moveViewToX(this.getHighestVisibleX());
         }
+
+        if (this.viewPortEmitter != null) {
+            float[] vals = new float[9];
+            Matrix matrix = this.getViewPortHandler().getMatrixTouch();
+            matrix.getValues(vals);
+            this.viewPortEmitter.onNext(
+                    new ChartTranslationData(vals, this.hashCode())
+            );
+        }
     }
 
     @Override
     public void onChartTranslate(MotionEvent me, float dX, float dY) {
 
+        if (this.viewPortEmitter != null) {
+            float[] vals = new float[9];
+            Matrix matrix = this.getViewPortHandler().getMatrixTouch();
+            matrix.getValues(vals);
+            this.viewPortEmitter.onNext(
+                    new ChartTranslationData(vals, this.hashCode())
+            );
+        }
     }
 }

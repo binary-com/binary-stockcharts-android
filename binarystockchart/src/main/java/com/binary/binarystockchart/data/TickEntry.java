@@ -1,10 +1,12 @@
 package com.binary.binarystockchart.data;
 
+import com.binary.binarystockchart.interfaces.data.IEntry;
+
 /**
  * Created by morteza on 10/10/2017.
  */
 
-public class TickEntry {
+public class TickEntry implements IEntry {
 
     private Long epoch;
     private Float quote;

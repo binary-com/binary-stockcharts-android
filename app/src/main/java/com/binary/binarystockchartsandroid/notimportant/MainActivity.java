@@ -10,6 +10,7 @@ import android.widget.ListView;
 
 import com.binary.binarystockchartsandroid.BinaryCandleStickChartActivity;
 import com.binary.binarystockchartsandroid.BinaryLineChartActivity;
+import com.binary.binarystockchartsandroid.ChartListViewActivity;
 import com.binary.binarystockchartsandroid.LineCombineChartActivity;
 import com.binary.binarystockchartsandroid.R;
 import com.binary.binarystockchartsandroid.RealTimeBinaryLineChartActivity;
@@ -36,6 +37,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         objects.add(new ContentItem("CandleStick Chart", "A simple demonstration of the candleStickChart."));
         objects.add(new ContentItem("RealTime Line Chart", "A simple real time of the binary line chart."));
         objects.add(new ContentItem("RealTime Combine Line Chart", "A simple real time of the binary line chart."));
+        objects.add(new ContentItem("Binary Chart View", "Show multiple charts in a list."));
 
         MyAdapter adapter = new MyAdapter(this, objects);
 
@@ -65,6 +67,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 break;
             case 3:
                 i = new Intent(this, LineCombineChartActivity.class);
+                startActivity(i);
+                break;
+            case 4:
+                i = new Intent(this, ChartListViewActivity.class);
                 startActivity(i);
                 break;
 
