@@ -27,6 +27,8 @@
         </activity>
         <activity android:name=".LineCombineChartActivity">
         </activity>
+        <activity android:name=".ChartListViewActivity">
+        </activity>
     </application>
 
 </manifest>

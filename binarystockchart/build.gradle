@@ -34,9 +34,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.github.binary-com:MPAndroidChart:master-SNAPSHOT'
     compile 'com.google.guava:guava:23.3-android'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
     testCompile 'junit:junit:4.12'
 }
 
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
+//configurations.all {
+//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+//}

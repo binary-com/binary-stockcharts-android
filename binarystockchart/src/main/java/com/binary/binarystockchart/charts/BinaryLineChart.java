@@ -26,7 +26,7 @@ import java.util.List;
  * Created by morteza on 12/18/2017.
  */
 
-public class BinaryLineChart extends BaseBinaryChart<LineData> {
+public class BinaryLineChart extends BaseBinaryChart<LineData, TickEntry> {
 
 
 
@@ -103,7 +103,8 @@ public class BinaryLineChart extends BaseBinaryChart<LineData> {
         return set;
     }
 
-    public void addTick(TickEntry tick) {
+    @Override
+    public void addEntry(TickEntry tick) {
 
         LineData lineData = generateMainData();
 
@@ -130,7 +131,8 @@ public class BinaryLineChart extends BaseBinaryChart<LineData> {
         }
     }
 
-    public void addTicks(List<TickEntry> ticks) {
+    @Override
+    public void addEntries(List<TickEntry> ticks) {
 
         LineData lineData = generateMainData();
 
@@ -156,22 +158,26 @@ public class BinaryLineChart extends BaseBinaryChart<LineData> {
 
         this.setXAxisMax(lastTick.getEpoch() - this.epochReference);
 
-        this.zoom(this.defaultXAxisZoom, defaultYAxixZoom, 0, 0);
+        this.zoom(this.defaultXAxisZoom, defaultYAxisZoom, 0, 0);
 
         if (this.autoScrollingEnabled) {
             this.moveViewToX(Iterables.getLast(ticks).getEpoch() - this.epochReference);
         }
     }
 
-    private void handlesIndicators() {
-        LineData chartData = generateMainData();
+    @Override
+    protected void handlesIndicators() {
+        LineData chartData = this.getLineData();
 
-        for(IIndicator indicator : this.indicators) {
-            if(indicator.getChartData() == null) {
-                indicator.setChartData(this.getCombinedData());
+        if (chartData != null && chartData.getEntryCount() > 0) {
+
+            for (IIndicator indicator : this.indicators) {
+                if (indicator.getChartData() == null) {
+                    indicator.setChartData(this.getCombinedData());
+                }
+
+                indicator.notifyDataChanged();
             }
-
-            indicator.notifyDataChanged();
         }
     }
 

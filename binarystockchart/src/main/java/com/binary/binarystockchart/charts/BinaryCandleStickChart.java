@@ -31,7 +31,7 @@ import java.util.List;
  * Created by morteza on 10/25/2017.
  */
 
-public class BinaryCandleStickChart extends BaseBinaryChart<CandleData> implements OnChartGestureListener {
+public class BinaryCandleStickChart extends BaseBinaryChart<CandleData, BinaryCandleEntry> implements OnChartGestureListener {
 
     private Integer granularity = 60;
     private Integer decimalPlaces = 2;
@@ -86,7 +86,8 @@ public class BinaryCandleStickChart extends BaseBinaryChart<CandleData> implemen
         return candleData;
     }
 
-    private void handlesIndicators() {
+    @Override
+    protected void handlesIndicators() {
         for (IIndicator indicator : this.indicators) {
             if (indicator.getChartData() == null) {
                 indicator.setChartData(this.getCombinedData());
@@ -98,6 +99,7 @@ public class BinaryCandleStickChart extends BaseBinaryChart<CandleData> implemen
         }
     }
 
+    @Override
     public void addEntry(BinaryCandleEntry entry) {
         CandleData data = this.generateMainData();
 
@@ -134,6 +136,7 @@ public class BinaryCandleStickChart extends BaseBinaryChart<CandleData> implemen
         }
     }
 
+    @Override
     public void addEntries(List<BinaryCandleEntry> entries) {
         CandleData data = generateMainData();
 
